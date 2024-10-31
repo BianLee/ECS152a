@@ -1,4 +1,5 @@
 import dpkt
+import socket
 
 pcap_files = ['./HW1_1.pcap', './HW1_2.pcap', './HW1_3.pcap', './HW1_4.pcap', './HW1_5.pcap', './HW1_6.pcap']
 
@@ -8,8 +9,6 @@ for i in range(len(pcap_files)): #analyze all 6
     filename = pcap_files[i]
     f = open(filename, 'rb') #open binary mode, if not there is error
     pcap = dpkt.pcap.Reader(f)
-
-
 
     #define the mapping of port number : protocol
     port_dictionary = {
@@ -30,6 +29,7 @@ for i in range(len(pcap_files)): #analyze all 6
     for timestamp, packet_data in pcap:
         try:
             eth = dpkt.ethernet.Ethernet(packet_data)
+            
             if isinstance(eth.data, dpkt.ip.IP): # case where it's an IP packet
                 ip = eth.data
 
@@ -39,6 +39,26 @@ for i in range(len(pcap_files)): #analyze all 6
                         count_dictionary[tcp.sport]+=1
                     elif (tcp.dport in port_dictionary): #tcp.dport is destination
                         count_dictionary[tcp.dport]+=1
+            
+                
+            elif isinstance(eth.data, dpkt.ip6.IP6):
+                ip6 = eth.data
+                # source = socket.inet_ntop(socket.AF_INET6, ip6.src)
+                # destination = socket.inet_ntop(socket.AF_INET6, ip6.dst)
+
+                # ICMPv6 packet
+                if isinstance(ip6.data, dpkt.icmp6.ICMP6):
+                    if "ICMPv6" not in count_dictionary:
+                        count_dictionary["ICMPv6"]=1
+                    else:
+                        count_dictionary["ICMPv6"]+=1
+
+
+
+
+
+  
+                                
         except:
             print("exception block, error")
 
