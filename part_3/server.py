@@ -13,4 +13,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
         with proxy_server_connection:
             print("server socket connected")
             data = proxy_server_connection.recv(1024).decode() # data from the proxy server
-            proxy_server_connection.sendall(data.encode()) #send it right back to proxy server (this is a ping pong after all)
+            
+            new_data = "pong"
+            
+            proxy_server_connection.sendall(new_data.encode()) #send it right back to proxy server (this is a ping pong after all)
