@@ -39,23 +39,40 @@ for i in range(len(pcap_files)): #analyze all 6
                         count_dictionary[tcp.sport]+=1
                     elif (tcp.dport in port_dictionary): #tcp.dport is destination
                         count_dictionary[tcp.dport]+=1
-            
+                
+                elif isinstance(ip.data, dpkt.udp.UDP):
+                    # print("hello")
+                    udp = ip.data
+              
+                    if (udp.sport in port_dictionary): #udp.sport is source
+                        # print('asdffsdaf')
+                        count_dictionary[udp.sport]+=1
+                    elif (udp.dport in port_dictionary): #udp.dport is destination
+                        # print('asdffsdaf')
+                        count_dictionary[udp.dport]+=1
                 
             elif isinstance(eth.data, dpkt.ip6.IP6):
                 ip6 = eth.data
-                # source = socket.inet_ntop(socket.AF_INET6, ip6.src)
-                # destination = socket.inet_ntop(socket.AF_INET6, ip6.dst)
 
-                # ICMPv6 packet
                 if isinstance(ip6.data, dpkt.icmp6.ICMP6):
-                    if "ICMPv6" not in count_dictionary:
-                        count_dictionary["ICMPv6"]=1
+                    if ("ICMPv6" not in count_dictionary):
+                        count_dictionary["ICMPv6"] = 1 #if it doesn't exist just initialize
                     else:
-                        count_dictionary["ICMPv6"]+=1
-
-
-
-
+                        count_dictionary["ICMPv6"] += 1
+                
+                elif isinstance(ip6.data, dpkt.udp.UDP):
+                    udp = ip6.data
+                    if (udp.sport in port_dictionary):
+                        count_dictionary[udp.sport] += 1
+                    elif (udp.dport in port_dictionary): #should this be if or elif?
+                        count_dictionary[udp.dport] += 1 
+                
+                elif isinstance(ip6.data, dpkt.tcp.TCP):
+                    tcp = ip6.data
+                    if (tcp.sport in port_dictionary):
+                        count_dictionary[tcp.sport] += 1
+                    elif (tcp.dport in port_dictionary):  #should this be if or elif?
+                        count_dictionary[tcp.dport] += 1
 
   
                                 
