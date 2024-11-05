@@ -18,14 +18,9 @@ port_dictionary = {
 }
 
 application_protocols = {
-    "HTTP": True,
-    "HTTPS": True,
-    "FTP": True,
-    "Telnet": True,
-    "SMTP": True,
-    "POP": True,
-    "mDNS": True,
-    "SSDP": True,
+    "HTTP": True, "HTTPS": True, "FTP": True,
+    "Telnet": True, "SMTP": True, "POP": True,
+    "mDNS": True, "SSDP": True,
 }
 
 class Count:
@@ -52,6 +47,7 @@ for i in range(len(pcap_files)): # analyze all 6
     f = open(filename, 'rb') # open binary mode, if not there is error
     pcap = dpkt.pcap.Reader(f)
     count = Count()
+    browsers = {}
 
     for timestamp, packet_data in pcap:
         try:
@@ -61,6 +57,14 @@ for i in range(len(pcap_files)): # analyze all 6
                 ip = eth.data
                 if isinstance(ip.data, dpkt.tcp.TCP) or isinstance(ip.data, dpkt.udp.UDP):
                     count.add_ports(ip.data.sport, ip.data.dport)
+
+                    try:
+                        tcp = ip.data
+                        http = dpkt.http.Request(tcp.data) # Parse HTTP request
+                        user_agent = http.headers.get('user-agent')
+                        browsers[user_agent] = True
+                    except (dpkt.dpkt.NeedData, dpkt.dpkt.UnpackError):
+                        continue
                         
             elif isinstance(eth.data, dpkt.ip6.IP6):
                 ip6 = eth.data
@@ -74,8 +78,47 @@ for i in range(len(pcap_files)): # analyze all 6
         except:
             print("exception block, error")
 
+                    
+
     print(f"File {filename}")
     for key in count.dict:
         if key in application_protocols and count.dict[key] > 0:
-            print(f"{key.ljust(7)}: {count.dict[key]}")       
+            print(f"{key.ljust(7)}: {count.dict[key]}")  
+    for key in browsers:
+        print("Browser: ", key)
+    print()
+            
+
+
+
+for i in range(len(pcap_files)): # analyze all 6
+
+    filename = pcap_files[i]
+    f = open(filename, 'rb') # open binary mode, if not there is error
+    pcap = dpkt.pcap.Reader(f)
+    
+    print(f"File {filename}")
+    print("Timestamp           :   source -> destination")
+    
+    for timestamp, packet_data in pcap:
+        
+        eth = dpkt.ethernet.Ethernet(packet_data)
+
+        src = None
+        dst = None 
+        
+        if isinstance(eth.data, dpkt.ip6.IP6):
+            ip6 = eth.data
+            src = socket.inet_ntop(socket.AF_INET6, ip6.src)
+            dst = socket.inet_ntop(socket.AF_INET6, ip6.dst)
+            
+        if isinstance(eth.data, dpkt.ip.IP):
+            ip = eth.data
+            src = socket.inet_ntoa(ip.src)
+            dst = socket.inet_ntoa(ip.dst)
+
+        if src != None and dst != None: 
+            print(f"{timestamp}".ljust(20) + f":   {str(src).ljust(38)} -> {dst}")
+
+    print()
     print()

@@ -4,7 +4,6 @@ import json
 filename = "ass1_1.pcap"
 
 
-
 with open(filename, 'rb') as f:
     pcap = dpkt.pcap.Reader(f)
 
