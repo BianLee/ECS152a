@@ -107,11 +107,14 @@ for i in range(len(pcap_files)): # analyze all 6
         src = None
         dst = None 
         
+        # only check ipv4
+        ''' 
         if isinstance(eth.data, dpkt.ip6.IP6):
             ip6 = eth.data
             src = socket.inet_ntop(socket.AF_INET6, ip6.src)
             dst = socket.inet_ntop(socket.AF_INET6, ip6.dst)
-            
+        '''    
+        
         if isinstance(eth.data, dpkt.ip.IP):
             ip = eth.data
             src = socket.inet_ntoa(ip.src)

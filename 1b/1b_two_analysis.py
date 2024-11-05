@@ -1,5 +1,6 @@
 import dpkt
 import socket
+import requests
 
 
 ass1_2 = dpkt.pcap.Reader(open("ass1_2.pcap", 'rb'))
