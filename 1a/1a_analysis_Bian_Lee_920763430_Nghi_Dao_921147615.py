@@ -56,6 +56,11 @@ for i in range(len(pcap_files)): # analyze all 6
             if isinstance(eth.data, dpkt.ip.IP):
                 ip = eth.data
                 if isinstance(ip.data, dpkt.tcp.TCP) or isinstance(ip.data, dpkt.udp.UDP):
+
+                    if len(tcp.data) == 0: # skipping over the packets with no application layer data
+                        continue
+
+
                     count.add_ports(ip.data.sport, ip.data.dport)
 
                     try:

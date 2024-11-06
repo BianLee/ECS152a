@@ -19,7 +19,7 @@ with open(filename, 'rb') as f:
                 if isinstance(ip.data, (dpkt.tcp.TCP, dpkt.udp.UDP)):
                     tcp = ip.data
                     payload = tcp.data
-                    for line in payload.decode().split("\n"):
+                    for line in payload.decode().split("\n"):   
                         if "secret" in line or "password" in line:
                             print(line)
 
