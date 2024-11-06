@@ -68,6 +68,14 @@ for i in range(len(pcap_files)): # analyze all 6
                         
             elif isinstance(eth.data, dpkt.ip6.IP6):
                 ip6 = eth.data
+                if ip6.nxt == 50: #ESP for activity #6 (over SSH)
+                    count.add("ESP")
+                    src = socket.inet_ntop(socket.AF_INET6, ip6.src)
+                    dst = socket.inet_ntop(socket.AF_INET6, ip6.dst)
+
+                    print("ESP packet: ", timestamp)
+                    # print(f"ESP Packet: {timestamp} - {src} -> {dst}")
+
                 if isinstance(ip6.data, dpkt.icmp6.ICMP6):
                     count.add("ICMPv6")
                 elif isinstance(ip6.data, dpkt.udp.UDP) or isinstance(ip6.data, dpkt.tcp.TCP):
@@ -90,7 +98,6 @@ for i in range(len(pcap_files)): # analyze all 6
             
 
 
-
 for i in range(len(pcap_files)): # analyze all 6
 
     filename = pcap_files[i]
@@ -108,13 +115,15 @@ for i in range(len(pcap_files)): # analyze all 6
         dst = None 
         
         # only check ipv4
-        ''' 
+      
+        '''
         if isinstance(eth.data, dpkt.ip6.IP6):
             ip6 = eth.data
             src = socket.inet_ntop(socket.AF_INET6, ip6.src)
             dst = socket.inet_ntop(socket.AF_INET6, ip6.dst)
-        '''    
+        '''
         
+
         if isinstance(eth.data, dpkt.ip.IP):
             ip = eth.data
             src = socket.inet_ntoa(ip.src)
@@ -125,3 +134,4 @@ for i in range(len(pcap_files)): # analyze all 6
 
     print()
     print()
+
