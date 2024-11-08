@@ -1,11 +1,11 @@
 import socket
-
+#define server hosts and port
 SERVER_HOST = '127.0.0.1'
 SERVER_PORT = 5500
 
 large_string = '0'*100*1024**2
 
-
+# using socket to send data
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((SERVER_HOST, SERVER_PORT))
     s.sendall(large_string.encode('utf-8'))

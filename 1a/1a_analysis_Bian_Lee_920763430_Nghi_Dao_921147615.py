@@ -3,6 +3,7 @@ import socket
 
 pcap_files = ['./HW1_1.pcap', './HW1_2.pcap', './HW1_3.pcap', './HW1_4.pcap', './HW1_5.pcap', './HW1_6.pcap']
 
+# define the dictionary so that it forms tkhe key : value pair of port number : protocol name
 port_dictionary = {
     80: "HTTP",
     443: "HTTPS",
@@ -17,6 +18,7 @@ port_dictionary = {
     1900: "SSDP"
 }
 
+# define the ports in a python dictionary
 application_protocols = {
     "HTTP": True, "HTTPS": True, "FTP": True,
     "Telnet": True, "SMTP": True, "POP": True,
@@ -25,10 +27,11 @@ application_protocols = {
 
 class Count:
     def __init__(self):
-        self.dict = {}
+        self.dict = {} 
+
         for port in port_dictionary:
             self.dict[port_dictionary[port]] = 0
-        self.dict["ICMPv6"] = 0
+        self.dict["ICMPv6"] = 0 #add additional fields for other protocls like ICMP and ARP
         self.dict["ARP"] = 0
 
     def add_ports(self, src_port, dest_port):
@@ -41,7 +44,7 @@ class Count:
         if key in self.dict:
             self.dict[key] += 1
 
-for i in range(len(pcap_files)): # analyze all 6
+for i in range(len(pcap_files)): # analyze all 6 by interating through
 
     filename = pcap_files[i]
     f = open(filename, 'rb') # open binary mode, if not there is error
