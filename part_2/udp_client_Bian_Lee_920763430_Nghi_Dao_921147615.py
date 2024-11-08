@@ -1,15 +1,36 @@
 import socket
-#define server hosts and port
+
 SERVER_HOST = '127.0.0.1'
 SERVER_PORT = 5500
 
-large_string = '0'*100*1024**2
+string = '0'*1000 # 1KB of data
 
-# using socket to send data
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+
+with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
     s.connect((SERVER_HOST, SERVER_PORT))
-    s.sendall(large_string.encode('utf-8'))
-    data = s.recv(1024)
 
-through_put = float(data.decode())
-print(f"The throughput is {round(through_put/1024**2)}mb/s from {SERVER_HOST}:{SERVER_PORT}")
+    num_packets = 1000*100  # Total number of 1KB chunks to send
+
+    for i in range(num_packets):
+        try:
+            s.sendto(string.encode("utf-8"), (SERVER_HOST, SERVER_PORT))
+        except socket.error as e:
+            print(f"Error sending packet {i}: {e}")
+            continue
+
+    # Send end signal to server
+    
+    for i in range(5):
+        try:
+            s.sendto(b"END", (SERVER_HOST, SERVER_PORT))
+            # Receive throughput result from server
+            data, _ = s.recvfrom(1024)
+            throughput = float(data.decode())
+            print(f"The throughput is {round(throughput/1000)}KB/s from {SERVER_HOST}:{SERVER_PORT}")
+            break
+        except socket.timeout:
+            print("Time out")
+            continue
+        except socket.error as e:
+            print(f"Socket error: {e}")
+            continue

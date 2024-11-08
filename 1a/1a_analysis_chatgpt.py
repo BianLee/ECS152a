@@ -1,7 +1,7 @@
 import dpkt
 import socket
 
-pcap_files = ['./HW1_1.pcap', './HW1_2.pcap', './HW1_3.pcap', './HW1_4.pcap', './HW1_5.pcap', './HW1_6.pcap']
+pcap_files = ['./Activity_1.pcap', './Activity_2.pcap', './Activity_3.pcap', './Activity_4.pcap', './Activity_5.pcap', './Activity_6.pcap']
 
 port_dictionary = {
     80: "HTTP",
@@ -11,7 +11,7 @@ port_dictionary = {
     23: "Telnet",
     25: "SMTP",
     110: "POP",
-    53: "DNS",
+    53: "DNS",  
     4500: "ESP",
     5353: "MDNS",
     1900: "SSDP"
