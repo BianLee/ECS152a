@@ -1,0 +1,24 @@
+Top Domains:
+doubleclick.net 2763
+media-amazon.com 2497
+google.com 1999
+googletagmanager.com 1666
+rubiconproject.com 1379
+googlesyndication.com 1377
+gstatic.com 1284
+com.br 1241
+cookielaw.org 1081
+bing.com 1073
+
+
+Top Cookies:
+_ga 3533
+__cf_bm 2896
+ar_debug 2738
+receive-cookie-deprecation 2330
+_gid 2249
+_gcl_au 2114
+IDE 2014
+_abck 1899
+bm_sz 1899
+MUID 1513
