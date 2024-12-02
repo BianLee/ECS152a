@@ -68,15 +68,16 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as udp_socket:
                     if not acks[sid]:
                         send_time = time.time()
                         udp_socket.sendto(message, ('127.0.0.1', 5001))
-                        packet_send_times[sid] = send_time #overwrite it in this case of retransmission
+                        # keep original send time
+                        # packet_send_times[sid] = send_time #overwrite it in this case of retransmission
         
         seq_id = ack_id  #moving sequence id
     
     finish = time.time()
     time_it_took = finish - start
 
-    # Calculate metrics
-    throughput = total_bytes_sent / time_it_took  # bytes per second
+    # calculatig metrics
+    throughput = total_bytes_sent / time_it_took  
 
     running_sum=0
     #iterate over each value of delay and compute average
@@ -97,7 +98,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as udp_socket:
         running_jitter_sum += jitter_values_list[i]
     avg_jitter = running_jitter_sum / len(jitter_values_list)
     
-    # Calculate the final metric as per the formula
     metric = 0.2*(throughput/2000) + (0.1/avg_jitter) +(0.8/avg_delay)
     
     print(f"{throughput:.7f},{avg_delay:.7f},{avg_jitter:.7f},{metric:.7f}")
