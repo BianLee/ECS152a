@@ -50,7 +50,7 @@ class TCPReno():
             win_end = min(len(messages), win_start + self.cwnd)
             timer_start = time.time()
            
-            print("Start cwnd:", self.cwnd, "ack:", last_ack)
+            # print("Start cwnd:", self.cwnd, "ack:", last_ack)
 
             try:
                 for j in range(win_start, min(len(messages), win_end+1), 1):
@@ -88,7 +88,7 @@ class TCPReno():
                     
                     if ((ack_dict[ack_id]-1) % 3 == 0) and (ack_dict[ack_id] != 1):
                         duplicate = True
-                        print("Triple duplicate for", ack_id, "|", ack_dict[ack_id])
+                        # print("Triple duplicate for", ack_id, "|", ack_dict[ack_id])
                         
                         packid = ack_id.to_bytes(ACK_ID_LEN, signed=True, byteorder='big')
                         mes = messages[send_dict[ack_id]]
@@ -110,7 +110,7 @@ class TCPReno():
 
             except Exception as e:
                 self.on_timeout()
-                print("Timeout, reached:", last_ack, " | expected:", expected[win_end-1])
+                # print("Timeout, reached:", last_ack, " | expected:", expected[win_end-1])
         
         self.last_ack = last_ack
 
@@ -158,8 +158,8 @@ with open(FILE_NAME, "rb") as file:
     
 
     packid = -1
-    print("Final ack:", reno.last_ack)
-    print("Send ==FINACK==")
+    # print("Final ack:", reno.last_ack)
+    # print("Send ==FINACK==")
     fin_packet = packid.to_bytes(ACK_ID_LEN, signed=True, byteorder='big') + "==FINACK==".encode()
     udp_socket.sendto(fin_packet, (HOST, DEST_PORT))
     
@@ -174,4 +174,3 @@ with open(FILE_NAME, "rb") as file:
     print("Metric:", 0.2 * throughput/2000 + 0.1/avg_jitter + 0.8/avg_delay)
 
 udp_socket.close()
-
