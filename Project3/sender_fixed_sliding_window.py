@@ -29,25 +29,24 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as udp_socket:
             if seq_id_tmp >= len(data):
                 break
 
-            message = int.to_bytes(seq_id_tmp, SEQ_ID_SIZE, byteorder='big', signed=True) + data[seq_id_tmp : seq_id_tmp + MESSAGE_SIZE]
+            message = int.to_bytes(seq_id_tmp, SEQ_ID_SIZE, byteorder='big', signed=True) + data[seq_id_tmp:seq_id_tmp + MESSAGE_SIZE]
             messages.append((seq_id_tmp, message))
             acks[seq_id_tmp] = False
             total_bytes_sent += len(message)
-            seq_id_tmp += len(data[seq_id_tmp : seq_id_tmp + MESSAGE_SIZE])
+            seq_id_tmp += MESSAGE_SIZE
 
         for sid, message in messages:
             udp_socket.sendto(message, ('127.0.0.1', 5001))
-            packet_send_start_time = time.time()
-            packet_send_times[sid] = packet_send_start_time #store send time of each packet by using sid as the key in the dictionary (hashmap)
+            
+            packet_send_times[sid] = time.time() #store send time of each packet by using sid as the key in the dictionary (hashmap)
             
         # waiting for ack
         while True:
             try:
                 ack, _ = udp_socket.recvfrom(PACKET_SIZE)
                 ack_time = time.time()
-                
                 ack_id = int.from_bytes(ack[:SEQ_ID_SIZE], byteorder='big', signed=True)
-                print("received ack_id: " + str(ack_id))
+                print("received ack_id: ", ack_id)
                 
                 # Calculate delay for this packet
                 if ack_id in packet_send_times:
@@ -57,7 +56,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as udp_socket:
                 
                 # cumulative ack
                 for each_key in list(acks.keys()):
-                    if each_key <= ack_id:
+                    if each_key < ack_id:
                         acks[each_key] = True    
                 
                 if all(acks.values()):
@@ -66,12 +65,12 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as udp_socket:
                 #retransmission 
                 for sid, message in messages:
                     if not acks[sid]:
-                        send_time = time.time()
+                        # send_time = time.time()
                         udp_socket.sendto(message, ('127.0.0.1', 5001))
                         # keep original send time
                         # packet_send_times[sid] = send_time #overwrite it in this case of retransmission
         
-        seq_id = ack_id  #moving sequence id
+        seq_id += WINDOW_SIZE * MESSAGE_SIZE
     
     finish = time.time()
     time_it_took = finish - start
@@ -101,5 +100,15 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as udp_socket:
     metric = 0.2*(throughput/2000) + (0.1/avg_jitter) +(0.8/avg_delay)
     
     print(f"{throughput:.7f},{avg_delay:.7f},{avg_jitter:.7f},{metric:.7f}")
+
+    #kill receiver.py in the docker process once everything is done by sending the ==FINACK== message
         
-    udp_socket.sendto(int.to_bytes(-1, 4, signed=True, byteorder='big'), ('127.0.0.1', 5001))
+    # udp_socket.sendto(int.to_bytes(-1, 4, signed=True, byteorder='big'), ('127.0.0.1', 5001))
+    packid = -1
+    fin_packet = packid.to_bytes(4, signed=True, byteorder='big') + "==FINACK==".encode()
+    udp_socket.sendto(fin_packet, ('127.0.0.1', 5001))
+
+    ''' 
+    udp_socket.sendto("==FINACK==".encode(), ('127.0.0.1', 5001))
+    udp_socket.close()
+    ''' 
