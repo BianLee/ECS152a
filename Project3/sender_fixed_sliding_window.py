@@ -46,7 +46,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as udp_socket:
                 ack, _ = udp_socket.recvfrom(PACKET_SIZE)
                 ack_time = time.time()
                 ack_id = int.from_bytes(ack[:SEQ_ID_SIZE], byteorder='big', signed=True)
-                print("received ack_id: ", ack_id)
+                # print("received ack_id: ", ack_id)
                 
                 # Calculate delay for this packet
                 if ack_id in packet_send_times:
@@ -70,13 +70,14 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as udp_socket:
                         # keep original send time
                         # packet_send_times[sid] = send_time #overwrite it in this case of retransmission
         
-        seq_id += WINDOW_SIZE * MESSAGE_SIZE
+        seq_id += WINDOW_SIZE *MESSAGE_SIZE
     
     finish = time.time()
     time_it_took = finish - start
 
     # calculatig metrics
     throughput = total_bytes_sent / time_it_took  
+
 
     running_sum=0
     #iterate over each value of delay and compute average
@@ -99,7 +100,14 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as udp_socket:
     
     metric = 0.2*(throughput/2000) + (0.1/avg_jitter) +(0.8/avg_delay)
     
-    print(f"{throughput:.7f},{avg_delay:.7f},{avg_jitter:.7f},{metric:.7f}")
+    # print(f"{throughput:.7f},{avg_delay:.7f},{avg_jitter:.7f},{metric:.7f}")
+
+    print(f"throughput: {throughput:.7f}")
+    print(f"average delay: {avg_delay:.7f}")
+    print(f"average jitter: {avg_jitter:.7f}")
+    print(f"metric: {metric:.7f}")
+
+
 
     #kill receiver.py in the docker process once everything is done by sending the ==FINACK== message
         
