@@ -16,7 +16,14 @@ udp_socket.settimeout(0.3)
 
 with open(FILE_NAME, "rb") as file:
     
-
+    data = file.read()
+    full_count = len(data) // MESSAGE_SIZE
+    remaining = len(data) % MESSAGE_SIZE
+    total_bytes_sent = (ACK_ID_LEN + MESSAGE_SIZE)* full_count
+    total_bytes_sent += ACK_ID_LEN + remaining
+    
+    file.seek(0)
+    
     messages = []
     expected = []
     seq_id = []
@@ -78,8 +85,8 @@ with open(FILE_NAME, "rb") as file:
                 packet_count += 1
 
         except Exception as e:
+            pass
             # print("Error", seq_id[i], e)
-
 
     packid = -1
     # print("Final ack:", last_ack)
@@ -89,12 +96,14 @@ with open(FILE_NAME, "rb") as file:
     
     avg_jitter = total_jitter/packet_count
     avg_delay = total_delay/packet_count
-    throughput = seq_id[len(seq_id)-1]/(time.time() - timer)
-
+    print(total_bytes_sent)
+    throughput = total_bytes_sent/(time.time() - timer) 
     print("Stop and wait")
-    print("Throughput (KB/s):", throughput)
-    print("Average Jitter (s):", avg_jitter)
-    print("Average Delay (s):", avg_delay)
-    print("Metric:", 0.2 * throughput/2000 + 0.1/avg_jitter + 0.8/avg_delay)
+    print("Throughput (B/s): {:.7f}".format(throughput))
+    print("Average Jitter (s): {:.7f}".format(avg_jitter))
+    print("Average Delay (s): {:.7f}".format(avg_delay))
+    print("Metric: {:.7f}".format(0.2 * throughput / 2000 + 0.1 / avg_jitter + 0.8 / avg_delay))
+
 
 udp_socket.close()
+
