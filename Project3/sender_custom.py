@@ -15,7 +15,7 @@ udp_socket.bind((HOST, PORT))
 udp_socket.settimeout(TIME_OUT)
 
 
-class TCPReno():
+class TCPCustom():
     def __init__(self, messages, seq_id, expected_ack):
         self.cwnd = 1
         self.ssthresh = 64
@@ -165,19 +165,18 @@ with open(FILE_NAME, "rb") as file:
     
     
     timer = time.time()
-    reno = TCPReno(messages, seq_id, expected)
+    custom = TCPCustom(messages, seq_id, expected)
     
 
     packid = -1
-    #print("Final ack:", reno.last_ack)
-    # print("Send ==FINACK==")
+
     fin_packet = packid.to_bytes(ACK_ID_LEN, signed=True, byteorder='big') + "==FINACK==".encode()
     udp_socket.sendto(fin_packet, (HOST, DEST_PORT))
     
     print(total_bytes_sent)
     throughput = total_bytes_sent/(time.time() - timer)
-    avg_jitter = reno.total_jitter/reno.packet_count
-    avg_delay = reno.total_delay/reno.packet_count
+    avg_jitter = custom.total_jitter/custom.packet_count
+    avg_delay = custom.total_delay/custom.packet_count
 
     print("custom")
     print(f"Throughput (B/s): {throughput:.7f}")
