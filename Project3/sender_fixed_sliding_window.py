@@ -46,7 +46,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as udp_socket:
                 ack, _ = udp_socket.recvfrom(PACKET_SIZE)
                 ack_time = time.time()
                 ack_id = int.from_bytes(ack[:SEQ_ID_SIZE], byteorder='big', signed=True)
-                # print("received ack_id: ", ack_id)
+                #print("received ack_id: ", ack_id)
                 
                 # Calculate delay for this packet
                 if ack_id in packet_send_times:
@@ -76,6 +76,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as udp_socket:
     time_it_took = finish - start
 
     # calculatig metrics
+    print(total_bytes_sent)
     throughput = total_bytes_sent / time_it_took  
 
 
