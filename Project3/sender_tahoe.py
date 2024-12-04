@@ -127,7 +127,14 @@ class TCPTahoe():
 
 with open(FILE_NAME, "rb") as file:
     
+    # this is just for calculating total bytes so that it can be used for throughput calc
+    data = file.read()
+    full_count = len(data) // MESSAGE_SIZE
+    remaining = len(data) % MESSAGE_SIZE
+    total_bytes_sent = (ACK_ID_LEN + MESSAGE_SIZE)* full_count
+    total_bytes_sent += ACK_ID_LEN + remaining
 
+    file.seek(0)
     messages = []
     expected = []
     seq_id = []
@@ -158,14 +165,16 @@ with open(FILE_NAME, "rb") as file:
     fin_packet = packid.to_bytes(ACK_ID_LEN, signed=True, byteorder='big') + "==FINACK==".encode()
     udp_socket.sendto(fin_packet, (HOST, DEST_PORT))
 
-    throughput = seq_id[len(seq_id)-1]/(time.time() - timer)
+    throughput = total_bytes_sent / (time.time() - timer)
     avg_jitter = tahoe.total_jitter/tahoe.packet_count
     avg_delay = tahoe.total_delay/tahoe.packet_count
     
     print("Tahoe")
-    print("Throughput (KB/s):", throughput)
-    print("Average Jitter (s):", avg_jitter)
-    print("Average Delay (s):", avg_delay)
-    print("Metric:", 0.2 * throughput/2000 + 0.1/avg_jitter + 0.8/avg_delay)
+    print(total_bytes_sent)
+    print("Throughput (B/s): {:.7f}".format(throughput))
+    print("Average Jitter (s): {:.7f}".format(avg_jitter))
+    print("Average Delay (s): {:.7f}".format(avg_delay))
+    print("Metric: {:.7f}".format(0.2 * throughput / 2000 + 0.1 / avg_jitter + 0.8 / avg_delay))
+
 
 udp_socket.close()
