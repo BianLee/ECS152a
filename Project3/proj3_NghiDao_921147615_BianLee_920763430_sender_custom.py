@@ -8,7 +8,7 @@ ACK_ID_LEN = 4
 MESSAGE_SIZE = 1020
 
 FILE_NAME = "file.mp3"
-TIME_OUT = 0.3
+TIME_OUT = 0.2
 
 udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 udp_socket.bind((HOST, PORT))
@@ -126,13 +126,32 @@ class TCPCustom():
         self.succ = 0
 
     def on_success(self):
-        
+
+        if self.cwnd < self.ssthresh:
+            self.cwnd = min(self.ssthresh, self.cwnd*2)
+        else:
+            if self.succ < 5 and self.cwnd == self.ssthresh:
+                self.succ +=1
+
+            else:
+                if self.cwnd < round(self.ssthresh*1.5):
+                    self.cwnd = min(self.cwnd+2, round(self.ssthresh*1.5))
+                else:
+                    if self.succ < 15 and self.cwnd == round(self.ssthresh*1.5):
+                        self.succ +=1
+                    else:
+                        self.cwnd +=1
+                
+
+        # old logic for reference, ignore
+        ''' 
         self.succ += 1
         
         if self.cwnd < self.ssthresh:
             self.cwnd = min(self.ssthresh, self.cwnd*2)
         else:
             self.cwnd = self.ssthresh + round((self.succ/5)**2)
+        '''
 
 
 with open(FILE_NAME, "rb") as file:
