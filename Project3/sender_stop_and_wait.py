@@ -106,4 +106,3 @@ with open(FILE_NAME, "rb") as file:
 
 
 udp_socket.close()
-
